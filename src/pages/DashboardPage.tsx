@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { DollarSign, Wrench, AlertTriangle, TrendingUp } from "lucide-react";
+import { DollarSign, Wrench, AlertTriangle, TrendingUp, RefreshCw } from "lucide-react";
 import DashboardCharts from "../components/DashboardCharts";
+
 
 type RecentOS = {
   id: number;
@@ -20,21 +21,63 @@ type DashboardData = {
   totalReceita: number;
 };
 
+// Substitua pela URL real do seu backend no Render
+const API_URL = import.meta.env.VITE_API_URL || "https://backend-eletronico.onrender.com";
+
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadData = () => {
+    setLoading(true);
+    setError(null);
+
+    fetch(`${API_URL}/api/dashboard`)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`Erro na requisição: ${res.statusText}`);
+        }
+        return res.json();
+      })
+      .then((data) => {
+        setData(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Falha ao buscar dados do dashboard:", err);
+        setError("Não foi possível conectar ao servidor. Verifique a URL da API ou conexão.");
+        setLoading(false);
+      });
+  };
 
   useEffect(() => {
-    fetch("http://localhost:4000/api/dashboard")
-      .then((res) => res.json())
-      .then(setData)
-      .catch(console.error);
+    loadData();
   }, []);
 
-  if (!data) {
-    return <div className="p-8">Carregando...</div>;
+  if (loading) {
+    return (
+      <div className="p-8 text-zinc-400 flex items-center gap-2">
+        <RefreshCw className="w-5 h-5 animate-spin" /> Carregando informações do servidor...
+      </div>
+    );
   }
 
-  const { totalReceita, osAbertas, estoqueBaixo, receitaOs, recentOs } = data;
+  if (error || !data) {
+    return (
+      <div className="p-8 text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl m-8 flex flex-col items-start gap-4">
+        <p className="font-semibold">{error || "Ocorreu um erro ao carregar os dados."}</p>
+        <button
+          onClick={loadData}
+          className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-sm font-medium rounded-lg transition"
+        >
+          Tentar novamente
+        </button>
+      </div>
+    );
+  }
+
+  const { totalReceita = 0, osAbertas = 0, estoqueBaixo = 0, receitaOs = 0, recentOs = [] } = data;
 
   return (
     <div className="p-8 space-y-8">
@@ -48,7 +91,7 @@ export default function DashboardPage() {
         <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-xl flex items-center justify-between">
           <div>
             <p className="text-sm text-zinc-400 font-medium">Faturamento Mês</p>
-            <p className="text-2xl font-bold text-zinc-100 mt-1">R$ {totalReceita.toFixed(2)}</p>
+            <p className="text-2xl font-bold text-zinc-100 mt-1">R$ {Number(totalReceita).toFixed(2)}</p>
           </div>
           <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400">
             <DollarSign className="w-6 h-6" />
@@ -79,7 +122,7 @@ export default function DashboardPage() {
           <div>
             <p className="text-sm text-zinc-400 font-medium">Ticket Médio (OS)</p>
             <p className="text-2xl font-bold text-zinc-100 mt-1">
-              R$ {data.osAbertas > 0 ? (receitaOs / data.osAbertas).toFixed(2) : "0.00"}
+              R$ {osAbertas > 0 ? (Number(receitaOs) / osAbertas).toFixed(2) : "0.00"}
             </p>
           </div>
           <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400">
