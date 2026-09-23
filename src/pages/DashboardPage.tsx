@@ -32,26 +32,31 @@ export default function DashboardPage() {
     setError(null);
 
     try {
-      // Chamadas diretas sem o prefixo /api
-      const [resOS, resProd, resVendas] = await Promise.all([
-        fetch(`${API_URL}/ordens-servico`),
-        fetch(`${API_URL}/produtos`),
-        fetch(`${API_URL}/vendas-balcao`).catch(() => null)
+      // Função auxiliar para fazer fetch sem disparar erro se a rota não existir (404)
+      const safeFetch = async (endpoint: string) => {
+        try {
+          const res = await fetch(`${API_URL}${endpoint}`);
+          if (res.ok) {
+            return await res.json();
+          }
+        } catch (e) {
+          console.warn(`Rota ${endpoint} indisponível ou não encontrada.`);
+        }
+        return [];
+      };
+
+      // Tenta procurar os dados em rotas com e sem prefixo /api
+      const [ordens, produtos, vendas] = await Promise.all([
+        safeFetch("/ordens-servico").then(d => d.length ? d : safeFetch("/api/ordens-servico")),
+        safeFetch("/produtos").then(d => d.length ? d : safeFetch("/api/produtos")),
+        safeFetch("/vendas-balcao").then(d => d.length ? d : safeFetch("/api/vendas-balcao"))
       ]);
-
-      if (!resOS.ok || !resProd.ok) {
-        throw new Error("Erro ao buscar dados do servidor");
-      }
-
-      const ordens = await resOS.json();
-      const produtos = await resProd.json();
-      const vendas = resVendas && resVendas.ok ? await resVendas.json() : [];
 
       const osList = Array.isArray(ordens) ? ordens : [];
       const prodList = Array.isArray(produtos) ? produtos : [];
       const vendList = Array.isArray(vendas) ? vendas : [];
 
-      // Cálculos dos KPIs
+      // Cálculos dinâmicos dos KPIs
       const receitaOs = osList.reduce((acc: number, item: any) => acc + Number(item.valorTotal || 0), 0);
       const receitaBalcao = vendList.reduce((acc: number, item: any) => acc + Number(item.valorTotal || 0), 0);
       const totalReceita = receitaOs + receitaBalcao;
@@ -78,8 +83,8 @@ export default function DashboardPage() {
         recentOs: recentOsMapped
       });
     } catch (err) {
-      console.error("Falha ao buscar dados do dashboard:", err);
-      setError("Não foi possível conectar ao servidor. Verifique a URL da API ou conexão.");
+      console.error("Falha ao processar dados do dashboard:", err);
+      setError("Não foi possível carregar os dados. Verifique a ligação ao servidor.");
     } finally {
       setLoading(false);
     }
