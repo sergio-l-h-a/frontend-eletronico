@@ -1,36 +1,65 @@
 import { useState } from "react";
 
+interface ItemCarrinho {
+  id: number;
+  nome: string;
+  precoUnitario: number;
+  quantidade: number;
+}
+
+interface Produto {
+  id: number;
+  nome: string;
+  preco: number;
+  estoque?: number;
+}
+
+const API_URL = import.meta.env.VITE_API_URL || "https://backend-eletronico.onrender.com";
+
 export default function PDVPage() {
-  const [busca, setBusca] = useState("");
-  const [produtos, setProdutos] = useState([]);
-  const [carrinho, setCarrinho] = useState([]);
+  const [busca, setBusca] = useState<string>("");
+  const [carrinho, setCarrinho] = useState<ItemCarrinho[]>([]);
+  const [produtos, setProdutos] = useState<Produto[]>([]);
 
   function buscarProdutos() {
-    fetch(`http://localhost:4000/api/pdv/buscar?q=${busca}`)
+    fetch(`${API_URL}/api/pdv/buscar?q=${busca}`)
       .then((res) => res.json())
-      .then(setProdutos);
+      .then((data) => setProdutos(Array.isArray(data) ? data : []))
+      .catch((err) => console.error("Erro ao buscar produtos:", err));
   }
 
-  function adicionar(produto: any) {
+  function adicionar(produto: Produto) {
     const existe = carrinho.find((p) => p.id === produto.id);
 
     if (existe) {
-      existe.quantidade++;
-      setCarrinho([...carrinho]);
+      setCarrinho(
+        carrinho.map((item) =>
+          item.id === produto.id
+            ? { ...item, quantidade: item.quantidade + 1 }
+            : item
+        )
+      );
     } else {
-      setCarrinho([...carrinho, { ...produto, quantidade: 1 }]);
+      setCarrinho([
+        ...carrinho,
+        {
+          id: produto.id,
+          nome: produto.nome,
+          precoUnitario: Number(produto.preco),
+          quantidade: 1,
+        },
+      ]);
     }
   }
 
   function alterarQuantidade(id: number, q: number) {
-    const novo = carrinho.map((p) =>
-      p.id === id ? { ...p, quantidade: q } : p
+    setCarrinho(
+      carrinho.map((p) => (p.id === id ? { ...p, quantidade: q } : p))
     );
-    setCarrinho(novo);
   }
 
   function finalizar() {
-    fetch("http://localhost:4000/api/pdv/finalizar", {
+    fetch(`${API_URL}/api/pdv/finalizar`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -40,13 +69,14 @@ export default function PDVPage() {
     })
       .then((res) => res.json())
       .then((r) => {
-        alert("Venda finalizada! ID: " + r.vendaId);
+        alert("Venda finalizada! ID: " + (r.vendaId || r.id || "Sucesso"));
         setCarrinho([]);
-      });
+      })
+      .catch((err) => console.error("Erro ao finalizar venda:", err));
   }
 
   const total = carrinho.reduce(
-    (acc, p) => acc + p.precoUnitario * p.quantidade,
+    (acc, p) => acc + (p.precoUnitario || 0) * (p.quantidade || 0),
     0
   );
 
@@ -57,14 +87,14 @@ export default function PDVPage() {
       {/* Busca */}
       <div className="flex gap-2 mb-6">
         <input
-          className="flex-1 p-3 bg-zinc-900 border border-zinc-800 rounded"
+          className="flex-1 p-3 bg-zinc-900 border border-zinc-800 rounded text-zinc-100"
           placeholder="Buscar produto..."
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
         />
         <button
           onClick={buscarProdutos}
-          className="px-4 py-2 bg-emerald-600 rounded"
+          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded font-medium transition"
         >
           Buscar
         </button>
@@ -72,16 +102,20 @@ export default function PDVPage() {
 
       {/* Lista de produtos */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        {produtos.map((p: any) => (
+        {produtos.map((p) => (
           <div
             key={p.id}
-            className="bg-zinc-900 border border-zinc-800 p-4 rounded"
+            className="bg-zinc-900 border border-zinc-800 p-4 rounded flex items-center justify-between"
           >
-            <h2 className="font-semibold">{p.nome}</h2>
-            <p className="text-zinc-400 text-sm">R$ {p.preco}</p>
+            <div>
+              <h2 className="font-semibold">{p.nome}</h2>
+              <p className="text-zinc-400 text-sm">
+                R$ {Number(p.preco).toFixed(2)}
+              </p>
+            </div>
             <button
               onClick={() => adicionar(p)}
-              className="mt-3 px-3 py-1 bg-emerald-600 rounded"
+              className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-sm font-medium rounded transition"
             >
               Adicionar
             </button>
@@ -96,27 +130,40 @@ export default function PDVPage() {
         {carrinho.map((p) => (
           <div key={p.id} className="flex items-center justify-between mb-3">
             <span>{p.nome}</span>
-            <input
-              type="number"
-              min={1}
-              value={p.quantidade}
-              onChange={(e) =>
-                alterarQuantidade(p.id, Number(e.target.value))
-              }
-              className="w-16 p-2 bg-zinc-800 rounded"
-            />
-            <span>R$ {(p.precoUnitario * p.quantidade).toFixed(2)}</span>
+            <div className="flex items-center gap-4">
+              <input
+                type="number"
+                min={1}
+                value={p.quantidade}
+                onChange={(e) =>
+                  alterarQuantidade(p.id, Number(e.target.value))
+                }
+                className="w-16 p-2 bg-zinc-800 rounded text-center text-zinc-100"
+              />
+              <span className="w-24 text-right">
+                R$ {((p.precoUnitario || 0) * p.quantidade).toFixed(2)}
+              </span>
+            </div>
           </div>
         ))}
 
-        <div className="flex items-center justify-between mt-6">
+        {carrinho.length === 0 && (
+          <p className="text-zinc-500 text-sm py-4">
+            Nenhum item no carrinho.
+          </p>
+        )}
+
+        <div className="flex items-center justify-between mt-6 pt-4 border-t border-zinc-800">
           <span className="text-lg font-semibold">Total:</span>
-          <span className="text-2xl font-bold">R$ {total.toFixed(2)}</span>
+          <span className="text-2xl font-bold text-emerald-400">
+            R$ {total.toFixed(2)}
+          </span>
         </div>
 
         <button
           onClick={finalizar}
-          className="mt-6 w-full py-3 bg-emerald-600 rounded text-lg font-semibold"
+          disabled={carrinho.length === 0}
+          className="mt-6 w-full py-3 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed rounded text-lg font-semibold transition"
         >
           Finalizar Venda
         </button>
