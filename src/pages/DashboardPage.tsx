@@ -33,7 +33,7 @@ export default function DashboardPage() {
     setLoading(true);
     setError(null);
 
-    fetch(`${API_URL}/api/dashboard`)
+    fetch(`${API_URL}/dashboard`)
       .then((res) => {
         if (!res.ok) {
           throw new Error(`Erro na requisição: ${res.statusText}`);
