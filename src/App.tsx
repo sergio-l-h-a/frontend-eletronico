@@ -17,8 +17,14 @@ export default function App() {
       <main className="flex-1 overflow-y-auto bg-zinc-950">
         <Routes>
           <Route path="/" element={<DashboardPage />} />
+          
+          {/* Listagem de Ordens de Serviço */}
           <Route path="/os" element={<OSPage />} />
-          <Route path="/ordens-servico" element={<NovaOSPage />} />
+          <Route path="/ordens-servico" element={<OSPage />} />
+          
+          {/* Rota dedicada para abrir o Formulário de Cadastro */}
+          <Route path="/nova-os" element={<NovaOSPage />} />
+
           <Route path="/pdv" element={<PDVPage />} />
           <Route path="/estoque" element={<EstoquePage />} />
           <Route path="/financeiro" element={<FinanceiroPage />} />
