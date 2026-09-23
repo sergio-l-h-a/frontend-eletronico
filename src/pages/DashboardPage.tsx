@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { DollarSign, Wrench, AlertTriangle, TrendingUp, RefreshCw } from "lucide-react";
 import DashboardCharts from "../components/DashboardCharts";
 
-
 type RecentOS = {
   id: number;
   aparelho: string;
@@ -21,7 +20,6 @@ type DashboardData = {
   totalReceita: number;
 };
 
-// Substitua pela URL real do seu backend no Render
 const API_URL = import.meta.env.VITE_API_URL || "https://backend-eletronico.onrender.com";
 
 export default function DashboardPage() {
@@ -29,26 +27,62 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadData = () => {
+  const loadData = async () => {
     setLoading(true);
     setError(null);
 
-    fetch(`${API_URL}/dashboard`)
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`Erro na requisição: ${res.statusText}`);
-        }
-        return res.json();
-      })
-      .then((data) => {
-        setData(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Falha ao buscar dados do dashboard:", err);
-        setError("Não foi possível conectar ao servidor. Verifique a URL da API ou conexão.");
-        setLoading(false);
+    try {
+      // Faz o consumo das rotas ativas do backend em paralelo
+      const [resOS, resProd, resVendas] = await Promise.all([
+        fetch(`${API_URL}/api/ordens-servico`),
+        fetch(`${API_URL}/api/produtos`),
+        fetch(`${API_URL}/api/vendas-balcao`).catch(() => null) // Fallback caso vendas não esteja populado
+      ]);
+
+      if (!resOS.ok || !resProd.ok) {
+        throw new Error("Erro ao buscar dados das rotas do servidor");
+      }
+
+      const ordens = await resOS.json();
+      const produtos = await resProd.json();
+      const vendas = resVendas && resVendas.ok ? await resVendas.json() : [];
+
+      const osList = Array.isArray(ordens) ? ordens : [];
+      const prodList = Array.isArray(produtos) ? produtos : [];
+      const vendList = Array.isArray(vendas) ? vendas : [];
+
+      // Cálculos dinâmicos para os KPIs
+      const receitaOs = osList.reduce((acc: number, item: any) => acc + Number(item.valorTotal || 0), 0);
+      const receitaBalcao = vendList.reduce((acc: number, item: any) => acc + Number(item.valorTotal || 0), 0);
+      const totalReceita = receitaOs + receitaBalcao;
+      
+      const osAbertas = osList.filter((item: any) => item.status !== "Entregue" && item.status !== "Cancelado").length;
+      const estoqueBaixo = prodList.filter((item: any) => Number(item.estoqueAtual || 0) <= Number(item.estoqueMinimo || 0)).length;
+
+      // Mapeamento das 5 últimas OSs
+      const recentOsMapped: RecentOS[] = osList.slice(-5).reverse().map((item: any) => ({
+        id: item.id,
+        aparelho: item.aparelho || item.descricao || "Aparelho",
+        marca: item.marca || "",
+        status: item.status || "Aguardando",
+        valorTotal: item.valorTotal ? String(item.valorTotal) : "0.00",
+        criadoEm: item.criadoEm || null
+      }));
+
+      setData({
+        receitaOs,
+        receitaBalcao,
+        totalReceita,
+        osAbertas,
+        estoqueBaixo,
+        recentOs: recentOsMapped
       });
+    } catch (err) {
+      console.error("Falha ao buscar dados do dashboard:", err);
+      setError("Não foi possível conectar ao servidor. Verifique a URL da API ou conexão.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
