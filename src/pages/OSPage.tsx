@@ -17,7 +17,7 @@ export default function OSPage() {
   const [carregando, setCarregando] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/os`)
+    fetch(`${API_URL}/api/nova-os`)
       .then((res) => res.json())
       .then((data) => setLista(Array.isArray(data) ? data : []))
       .catch((err) => console.error("Erro ao carregar Ordens de Serviço:", err))
