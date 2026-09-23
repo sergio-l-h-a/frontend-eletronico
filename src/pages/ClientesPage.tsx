@@ -1,7 +1,17 @@
 import { useEffect, useState } from "react";
 
+interface Cliente {
+  id: number;
+  nome: string;
+  telefone?: string;
+  cpf?: string;
+  email?: string;
+}
+
+const API_URL = import.meta.env.VITE_API_URL || "https://backend-eletronico.onrender.com";
+
 export default function ClientesPage() {
-  const [lista, setLista] = useState([]);
+  const [lista, setLista] = useState<Cliente[]>([]);
   const [busca, setBusca] = useState("");
   const [form, setForm] = useState({
     nome: "",
@@ -11,43 +21,53 @@ export default function ClientesPage() {
   });
 
   function carregar() {
-    fetch("http://localhost:4000/api/clientes")
+    fetch(`${API_URL}/api/clientes`)
       .then((res) => res.json())
-      .then(setLista);
+      .then((data) => setLista(Array.isArray(data) ? data : []))
+      .catch((err) => console.error("Erro ao carregar clientes:", err));
   }
 
   function buscar() {
-    fetch(`http://localhost:4000/api/clientes/buscar?q=${busca}`)
+    fetch(`${API_URL}/api/clientes/buscar?q=${busca}`)
       .then((res) => res.json())
-      .then(setLista);
+      .then((data) => setLista(Array.isArray(data) ? data : []))
+      .catch((err) => console.error("Erro ao buscar clientes:", err));
   }
 
   useEffect(() => {
     carregar();
   }, []);
 
-  function atualizarForm(e: any) {
+  function atualizarForm(e: React.ChangeEvent<HTMLInputElement>) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
   function salvar() {
-    fetch("http://localhost:4000/api/clientes", {
+    fetch(`${API_URL}/api/clientes`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
-    }).then(() => {
-      alert("Cliente cadastrado!");
-      setForm({ nome: "", telefone: "", cpf: "", email: "" });
-      carregar();
-    });
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Erro ao salvar cliente");
+        return res.json();
+      })
+      .then(() => {
+        alert("Cliente cadastrado!");
+        setForm({ nome: "", telefone: "", cpf: "", email: "" });
+        carregar();
+      })
+      .catch((err) => console.error("Erro ao cadastrar cliente:", err));
   }
 
   function excluir(id: number) {
     if (!confirm("Excluir cliente?")) return;
 
-    fetch(`http://localhost:4000/api/clientes/${id}`, {
+    fetch(`${API_URL}/api/clientes/${id}`, {
       method: "DELETE",
-    }).then(carregar);
+    })
+      .then(() => carregar())
+      .catch((err) => console.error("Erro ao excluir cliente:", err));
   }
 
   return (
@@ -57,14 +77,14 @@ export default function ClientesPage() {
       {/* Busca */}
       <div className="flex gap-2 mb-6">
         <input
-          className="flex-1 p-3 bg-zinc-900 border border-zinc-800 rounded"
+          className="flex-1 p-3 bg-zinc-900 border border-zinc-800 rounded text-zinc-100"
           placeholder="Buscar cliente por nome, telefone ou CPF..."
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
         />
         <button
           onClick={buscar}
-          className="px-4 py-2 bg-emerald-600 rounded"
+          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded font-medium transition"
         >
           Buscar
         </button>
@@ -75,21 +95,21 @@ export default function ClientesPage() {
         <h2 className="text-xl font-semibold mb-4">Cadastrar Cliente</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {["nome", "telefone", "cpf", "email"].map((campo) => (
+          {(["nome", "telefone", "cpf", "email"] as const).map((campo) => (
             <input
               key={campo}
               name={campo}
               placeholder={campo.toUpperCase()}
-              value={(form as any)[campo]}
+              value={form[campo]}
               onChange={atualizarForm}
-              className="p-3 bg-zinc-800 border border-zinc-700 rounded"
+              className="p-3 bg-zinc-800 border border-zinc-700 rounded text-zinc-100"
             />
           ))}
         </div>
 
         <button
           onClick={salvar}
-          className="mt-4 px-4 py-2 bg-emerald-600 rounded"
+          className="mt-4 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded font-medium transition"
         >
           Salvar Cliente
         </button>
@@ -97,7 +117,7 @@ export default function ClientesPage() {
 
       {/* Lista */}
       <div className="space-y-4">
-        {lista.map((c: any) => (
+        {lista.map((c) => (
           <div
             key={c.id}
             className="bg-zinc-900 border border-zinc-800 p-4 rounded"
@@ -106,7 +126,7 @@ export default function ClientesPage() {
               <h2 className="font-semibold">{c.nome}</h2>
               <button
                 onClick={() => excluir(c.id)}
-                className="px-3 py-1 bg-red-600 rounded"
+                className="px-3 py-1 bg-red-600 hover:bg-red-500 text-sm font-medium rounded transition"
               >
                 Excluir
               </button>
@@ -123,6 +143,10 @@ export default function ClientesPage() {
             </p>
           </div>
         ))}
+
+        {lista.length === 0 && (
+          <p className="text-zinc-500 text-sm py-4">Nenhum cliente encontrado.</p>
+        )}
       </div>
     </div>
   );
