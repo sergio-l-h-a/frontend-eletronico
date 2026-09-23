@@ -17,7 +17,7 @@ export default function OSPage() {
   const [carregando, setCarregando] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/nova-os`)
+    fetch(`${API_URL}/api/os`)
       .then((res) => res.json())
       .then((data) => setLista(Array.isArray(data) ? data : []))
       .catch((err) => console.error("Erro ao carregar Ordens de Serviço:", err))
@@ -63,7 +63,7 @@ export default function OSPage() {
               </p>
 
               <Link
-                to={`/nova-os/${os.id}`}
+                to={`/os/${os.id}`}
                 className="text-emerald-400 hover:text-emerald-300 text-sm mt-3 inline-block font-medium"
               >
                 Ver detalhes →

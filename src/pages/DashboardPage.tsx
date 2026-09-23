@@ -47,7 +47,7 @@ export default function DashboardPage() {
 
       // Tenta procurar os dados em rotas com e sem prefixo /api
       const [ordens, produtos, vendas] = await Promise.all([
-        safeFetch("/nova-os").then(d => d.length ? d : safeFetch("/api/nova-os")),
+        safeFetch("/ordens-servico").then(d => d.length ? d : safeFetch("/api/ordens-servico")),
         safeFetch("/produtos").then(d => d.length ? d : safeFetch("/api/produtos")),
         safeFetch("/vendas-balcao").then(d => d.length ? d : safeFetch("/api/vendas-balcao"))
       ]);
