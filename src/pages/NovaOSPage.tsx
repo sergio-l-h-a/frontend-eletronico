@@ -30,7 +30,7 @@ export default function NovaOSPage() {
 
     try {
       // Faz o POST para o endpoint do backend
-      const res = await fetch(`${API_URL}`, {
+      const res = await fetch(`${API_URL}/nova-os`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -42,7 +42,7 @@ export default function NovaOSPage() {
 
       alert("OS criada com sucesso!");
       // CORRIGIDO: Redireciona para a rota da lista do frontend (/os)
-      navigate("/os");
+      navigate("/nova-os");
     } catch (err) {
       console.error("Erro ao criar OS:", err);
       alert("Falha ao salvar a OS. Verifique a conexão com o servidor.");
