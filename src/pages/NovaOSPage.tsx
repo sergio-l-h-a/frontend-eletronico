@@ -18,7 +18,9 @@ export default function NovaOSPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
-  async function enviar() {
+  async function enviar(e: React.FormEvent) {
+    e.preventDefault(); // Impede o recarregamento nativo da página
+
     if (!form.cliente || !form.aparelho) {
       alert("Por favor, preencha pelo menos o cliente e o aparelho.");
       return;
@@ -27,7 +29,7 @@ export default function NovaOSPage() {
     setSalvando(true);
 
     try {
-      // Ajustado de /api/os para /ordens-servico (rota real do backend)
+      // Faz o POST para o endpoint do backend
       const res = await fetch(`${API_URL}/ordens-servico`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -39,8 +41,8 @@ export default function NovaOSPage() {
       }
 
       alert("OS criada com sucesso!");
-      // Redireciona para a rota correta da listagem
-      navigate("/ordens-servico");
+      // CORRIGIDO: Redireciona para a rota da lista do frontend (/os)
+      navigate("/os");
     } catch (err) {
       console.error("Erro ao criar OS:", err);
       alert("Falha ao salvar a OS. Verifique a conexão com o servidor.");
@@ -53,34 +55,72 @@ export default function NovaOSPage() {
     <div className="p-8 text-zinc-100 max-w-xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Criar Nova OS</h1>
 
-      <div className="space-y-4">
-        {(["cliente", "telefone", "aparelho", "marca"] as const).map((campo) => (
+      <form onSubmit={enviar} className="space-y-4">
+        <div>
+          <label className="block text-xs text-zinc-400 mb-1">Nome do Cliente *</label>
           <input
-            key={campo}
-            name={campo}
-            placeholder={campo.toUpperCase()}
-            value={form[campo]}
+            name="cliente"
+            placeholder="Ex: João da Silva"
+            value={form.cliente}
             className="w-full p-3 bg-zinc-900 border border-zinc-800 rounded text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500"
             onChange={atualizar}
           />
-        ))}
+        </div>
 
-        <textarea
-          name="defeito"
-          placeholder="Descreva o defeito"
-          value={form.defeito}
-          className="w-full p-3 bg-zinc-900 border border-zinc-800 rounded h-32 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500"
-          onChange={atualizar}
-        />
+        <div>
+          <label className="block text-xs text-zinc-400 mb-1">Telefone / WhatsApp</label>
+          <input
+            name="telefone"
+            placeholder="Ex: (11) 99999-9999"
+            value={form.telefone}
+            className="w-full p-3 bg-zinc-900 border border-zinc-800 rounded text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500"
+            onChange={atualizar}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs text-zinc-400 mb-1">Aparelho *</label>
+            <input
+              name="aparelho"
+              placeholder="Ex: iPhone 11"
+              value={form.aparelho}
+              className="w-full p-3 bg-zinc-900 border border-zinc-800 rounded text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500"
+              onChange={atualizar}
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs text-zinc-400 mb-1">Marca</label>
+            <input
+              name="marca"
+              placeholder="Ex: Apple"
+              value={form.marca}
+              className="w-full p-3 bg-zinc-900 border border-zinc-800 rounded text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500"
+              onChange={atualizar}
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-xs text-zinc-400 mb-1">Defeito Relatado</label>
+          <textarea
+            name="defeito"
+            placeholder="Descreva o problema relatado pelo cliente..."
+            value={form.defeito}
+            className="w-full p-3 bg-zinc-900 border border-zinc-800 rounded h-32 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500"
+            onChange={atualizar}
+          />
+        </div>
 
         <button
-          onClick={enviar}
+          type="submit"
           disabled={salvando}
-          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-800 rounded-lg font-medium transition cursor-pointer"
+          className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-800 rounded-lg font-medium transition cursor-pointer text-white"
         >
           {salvando ? "Salvando..." : "Salvar OS"}
         </button>
-      </div>
+      </form>
     </div>
   );
 }
