@@ -63,7 +63,7 @@ export default function OSPage() {
               </p>
 
               <Link
-                to={`/os/${os.id}`}
+                to={`/nova-os/${os.id}`}
                 className="text-emerald-400 hover:text-emerald-300 text-sm mt-3 inline-block font-medium"
               >
                 Ver detalhes →
