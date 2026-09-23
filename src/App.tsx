@@ -18,7 +18,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/os" element={<OSPage />} />
-          <Route path="/os" element={<NovaOSPage />} />
+          <Route path="/ordens-servico" element={<NovaOSPage />} />
           <Route path="/pdv" element={<PDVPage />} />
           <Route path="/estoque" element={<EstoquePage />} />
           <Route path="/financeiro" element={<FinanceiroPage />} />

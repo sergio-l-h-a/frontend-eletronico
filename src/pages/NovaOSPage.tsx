@@ -30,7 +30,7 @@ export default function NovaOSPage() {
 
     try {
       // Faz o POST para o endpoint do backend
-      const res = await fetch(`${API_URL}/ordens-servico`, {
+      const res = await fetch(`${API_URL}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
