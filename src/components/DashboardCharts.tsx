@@ -1,106 +1,115 @@
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-} from "recharts";
+import DashboardCharts from "../components/DashboardCharts"; // Ou o caminho correto do seu gráfico
 
-const data = [
-  { name: "Seg", receitaOS: 400, receitaPecas: 240 },
-  { name: "Ter", receitaOS: 300, receitaPecas: 139 },
-  { name: "Qua", receitaOS: 200, receitaPecas: 980 },
-  { name: "Qui", receitaOS: 278, receitaPecas: 390 },
-  { name: "Sex", receitaOS: 189, receitaPecas: 480 },
-  { name: "Sáb", receitaOS: 239, receitaPecas: 380 },
-];
-
-const formatYAxis = (value: number) => {
-  if (value >= 1000) {
-    return `R$ ${(value / 1000).toFixed(1)}k`;
-  }
-  return `R$ ${value}`;
-};
-
-interface DashboardChartsProps {
-  className?: string;
-}
-
-export default function DashboardCharts({ className = "h-64 sm:h-80" }: DashboardChartsProps) {
+export default function DashboardPage() {
   return (
-    <div className={`w-full ${className}`}>
-      <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-        <BarChart
-          data={data}
-          margin={{
-            top: 10,
-            right: 10,
-            left: -10,
-            bottom: 0,
-          }}
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
-          
-          <XAxis
-            dataKey="name"
-            stroke="#a1a1aa"
-            fontSize={12}
-            tickLine={false}
-            axisLine={false}
-            dy={5}
-          />
-          
-          <YAxis
-            stroke="#a1a1aa"
-            fontSize={11}
-            tickLine={false}
-            axisLine={false}
-            tickFormatter={formatYAxis}
-            width={55}
-          />
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto text-zinc-100">
+      {/* Cabeçalho */}
+      <div>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Visão Geral da Oficina</h1>
+        <p className="text-xs sm:text-sm text-zinc-400">
+          Acompanhe seus KPIs e o movimento do dia.
+        </p>
+      </div>
 
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "#18181b",
-              borderColor: "#27272a",
-              borderRadius: "0.5rem",
-              color: "#f4f4f5",
-              fontSize: "12px",
-              boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.5)",
-            }}
-            formatter={(value: any) => [
-              `R$ ${Number(value || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
-            ]}
-            cursor={{ fill: "#27272a", opacity: 0.4 }}
-          />
+      {/* Grid de KPIs - 1 col no mobile, 2 em tablets, 4 em telas grandes */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* KPI 1 */}
+        <div className="p-4 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-between">
+          <div className="space-y-1">
+            <p className="text-xs text-zinc-400 font-medium">Faturamento Mês</p>
+            <p className="text-xl sm:text-2xl font-bold text-zinc-100">R$ 140.00</p>
+          </div>
+          <div className="p-3 bg-emerald-500/10 text-emerald-500 rounded-lg">
+            <span className="text-lg font-bold">$</span>
+          </div>
+        </div>
 
-          <Legend
-            wrapperStyle={{
-              fontSize: "12px",
-              color: "#a1a1aa",
-              paddingTop: "12px",
-            }}
-          />
+        {/* KPI 2 */}
+        <div className="p-4 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-between">
+          <div className="space-y-1">
+            <p className="text-xs text-zinc-400 font-medium">OS em Aberto</p>
+            <p className="text-xl sm:text-2xl font-bold text-zinc-100">3</p>
+          </div>
+          <div className="p-3 bg-amber-500/10 text-amber-500 rounded-lg">
+            <span className="text-lg">🔧</span>
+          </div>
+        </div>
 
-          <Bar
-            dataKey="receitaOS"
-            name="Mão de Obra (OS)"
-            fill="#10b981"
-            radius={[4, 4, 0, 0]}
-            maxBarSize={40}
-          />
-          <Bar
-            dataKey="receitaPecas"
-            name="Venda de Peças"
-            fill="#f59e0b"
-            radius={[4, 4, 0, 0]}
-            maxBarSize={40}
-          />
-        </BarChart>
-      </ResponsiveContainer>
+        {/* KPI 3 */}
+        <div className="p-4 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-between">
+          <div className="space-y-1">
+            <p className="text-xs text-zinc-400 font-medium">Estoque Baixo</p>
+            <p className="text-xl sm:text-2xl font-bold text-zinc-100">1</p>
+          </div>
+          <div className="p-3 bg-rose-500/10 text-rose-500 rounded-lg">
+            <span className="text-lg">⚠️</span>
+          </div>
+        </div>
+
+        {/* KPI 4 */}
+        <div className="p-4 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-between">
+          <div className="space-y-1">
+            <p className="text-xs text-zinc-400 font-medium">Ticket Médio (OS)</p>
+            <p className="text-xl sm:text-2xl font-bold text-zinc-100">R$ 46.67</p>
+          </div>
+          <div className="p-3 bg-blue-500/10 text-blue-500 rounded-lg">
+            <span className="text-lg">📈</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Grid Principal: Gráfico + Fila de OS */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Seção do Gráfico (Ocupa 2 colunas no Desktop) */}
+        <div className="lg:col-span-2 p-5 bg-zinc-900 border border-zinc-800 rounded-xl space-y-4">
+          <h2 className="text-base font-semibold text-center sm:text-left">
+            Fluxo de Receitas (Simulação)
+          </h2>
+          <DashboardCharts />
+        </div>
+
+        {/* Seção Fila de OS Ativas (Ocupa 1 coluna no Desktop) */}
+        <div className="p-5 bg-zinc-900 border border-zinc-800 rounded-xl space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-semibold">Fila de OS Ativas</h2>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              Ao Vivo
+            </span>
+          </div>
+
+          <div className="space-y-3">
+            <div className="p-3 bg-zinc-950 border border-zinc-800 rounded-lg space-y-1">
+              <div className="flex justify-between text-xs">
+                <span className="font-bold text-zinc-200">OS #0001</span>
+                <span className="px-2 py-0.5 rounded bg-zinc-800 text-zinc-400 text-[10px]">
+                  Aguardando Avaliação
+                </span>
+              </div>
+              <p className="text-sm text-zinc-300">Ventilador Mondial</p>
+            </div>
+
+            <div className="p-3 bg-zinc-950 border border-zinc-800 rounded-lg space-y-1">
+              <div className="flex justify-between text-xs">
+                <span className="font-bold text-zinc-200">OS #0002</span>
+                <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800/50 text-[10px]">
+                  Pronto para Retirada
+                </span>
+              </div>
+              <p className="text-sm text-zinc-300">Liquidificador Arno</p>
+            </div>
+
+            <div className="p-3 bg-zinc-950 border border-zinc-800 rounded-lg space-y-1">
+              <div className="flex justify-between text-xs">
+                <span className="font-bold text-zinc-200">OS #0003</span>
+                <span className="px-2 py-0.5 rounded bg-zinc-800 text-zinc-400 text-[10px]">
+                  Aguardando Avaliação
+                </span>
+              </div>
+              <p className="text-sm text-zinc-300">Microonda Electrolux</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,53 +1,92 @@
-import { Wrench, Package, MonitorPlay, Users, DollarSign, LayoutDashboard } from "lucide-react";
-import clsx from "clsx";
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-
-const navItems = [
-  { name: "Dashboard", href: "/", icon: LayoutDashboard },
-  { name: "Ordens de Serviço", href: "/os", icon: Wrench },
-  { name: "Estoque / Vendas", href: "/estoque", icon: Package },
-  { name: "Frente de Caixa", href: "/pdv", icon: MonitorPlay },
-  { name: "Clientes", href: "/clientes", icon: Users },
-  { name: "Financeiro", href: "/financeiro", icon: DollarSign },
-];
+import { 
+  LayoutDashboard, 
+  Wrench, 
+  Package, 
+  ShoppingCart, 
+  Users, 
+  DollarSign, 
+  Menu, 
+  X 
+} from "lucide-react";
 
 export function Sidebar() {
-  const { pathname } = useLocation();
+  const location = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const menu = [
+    { label: "Dashboard", icon: LayoutDashboard, path: "/" },
+    { label: "Ordens de Serviço", icon: Wrench, path: "/os" },
+    { label: "Estoque / Vendas", icon: Package, path: "/estoque" },
+    { label: "Frente de Caixa", icon: ShoppingCart, path: "/pdv" },
+    { label: "Clientes", icon: Users, path: "/clientes" },
+    { label: "Financeiro", icon: DollarSign, path: "/financeiro" },
+  ];
 
   return (
-    <aside className="w-64 bg-zinc-900 border-r border-zinc-800 flex flex-col h-full">
-      <div className="p-6 border-b border-zinc-800">
-        <h1 className="text-xl font-bold text-emerald-400 flex items-center gap-2">
-          <Wrench className="w-6 h-6" />
-          OficinaPro
-        </h1>
-        <p className="text-xs text-zinc-400 mt-1">Gestão de Eletrodomésticos</p>
-      </div>
+    <>
+      {/* Botão Hamburguer no Mobile */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-zinc-900 border border-zinc-800 rounded-lg text-zinc-200"
+      >
+        {isOpen ? <X size={20} /> : <Menu size={20} />}
+      </button>
 
-      <nav className="flex-1 overflow-y-auto py-4">
-        <ul className="space-y-1 px-3">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href;
-            const Icon = item.icon;
-            return (
-              <li key={item.name}>
+      {/* Overlay no Mobile quando o menu tá aberto */}
+      {isOpen && (
+        <div
+          onClick={() => setIsOpen(false)}
+          className="md:hidden fixed inset-0 bg-black/60 z-40 backdrop-blur-sm"
+        />
+      )}
+
+      {/* Sidebar Container */}
+      <aside
+        className={`
+          fixed md:static inset-y-0 left-0 z-40
+          w-64 bg-zinc-900/50 border-r border-zinc-800/80 p-6 flex flex-col justify-between
+          transition-transform duration-300 ease-in-out
+          ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+        `}
+      >
+        <div className="space-y-8">
+          <div>
+            <h1 className="text-xl font-bold tracking-wide text-zinc-100 flex items-center gap-2">
+              <Wrench className="text-emerald-500" size={22} />
+              OficinaPro
+            </h1>
+            <p className="text-[11px] text-zinc-500 mt-0.5">Gestão de Eletrodomésticos</p>
+          </div>
+
+          <nav className="space-y-1.5">
+            {menu.map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.path;
+
+              return (
                 <Link
-                  to={item.href}
-                  className={clsx(
-                    "flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-sm font-medium",
-                    isActive
-                      ? "bg-emerald-500/10 text-emerald-400"
-                      : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50"
-                  )}
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setIsOpen(false)}
+                  className={`
+                    flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all
+                    ${
+                      isActive
+                        ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                        : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50"
+                    }
+                  `}
                 >
-                  <Icon className="w-5 h-5" />
-                  {item.name}
+                  <Icon size={18} />
+                  {item.label}
                 </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
-    </aside>
+              );
+            })}
+          </nav>
+        </div>
+      </aside>
+    </>
   );
 }
