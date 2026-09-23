@@ -32,15 +32,15 @@ export default function DashboardPage() {
     setError(null);
 
     try {
-      // Faz o consumo das rotas ativas do backend em paralelo
+      // Chamadas diretas sem o prefixo /api
       const [resOS, resProd, resVendas] = await Promise.all([
-        fetch(`${API_URL}/api/ordens-servico`),
-        fetch(`${API_URL}/api/produtos`),
-        fetch(`${API_URL}/api/vendas-balcao`).catch(() => null) // Fallback caso vendas não esteja populado
+        fetch(`${API_URL}/ordens-servico`),
+        fetch(`${API_URL}/produtos`),
+        fetch(`${API_URL}/vendas-balcao`).catch(() => null)
       ]);
 
       if (!resOS.ok || !resProd.ok) {
-        throw new Error("Erro ao buscar dados das rotas do servidor");
+        throw new Error("Erro ao buscar dados do servidor");
       }
 
       const ordens = await resOS.json();
@@ -51,7 +51,7 @@ export default function DashboardPage() {
       const prodList = Array.isArray(produtos) ? produtos : [];
       const vendList = Array.isArray(vendas) ? vendas : [];
 
-      // Cálculos dinâmicos para os KPIs
+      // Cálculos dos KPIs
       const receitaOs = osList.reduce((acc: number, item: any) => acc + Number(item.valorTotal || 0), 0);
       const receitaBalcao = vendList.reduce((acc: number, item: any) => acc + Number(item.valorTotal || 0), 0);
       const totalReceita = receitaOs + receitaBalcao;
