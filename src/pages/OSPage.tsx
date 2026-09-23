@@ -29,7 +29,7 @@ export default function OSPage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Ordens de Serviço</h1>
         <Link
-          to="/nova-os"
+          to="/os"
           className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-medium transition"
         >
           Nova OS
