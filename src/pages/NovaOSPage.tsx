@@ -28,7 +28,7 @@ export default function NovaOSPage() {
 
     try {
       // Ajustado de /api/os para /ordens-servico (rota real do backend)
-      const res = await fetch(`${API_URL}/api/ordens-servico`, {
+      const res = await fetch(`${API_URL}/ordens-servico`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -40,7 +40,7 @@ export default function NovaOSPage() {
 
       alert("OS criada com sucesso!");
       // Redireciona para a rota correta da listagem
-      navigate("/api/ordens-servico");
+      navigate("/ordens-servico");
     } catch (err) {
       console.error("Erro ao criar OS:", err);
       alert("Falha ao salvar a OS. Verifique a conexão com o servidor.");
