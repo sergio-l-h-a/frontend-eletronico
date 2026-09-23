@@ -17,8 +17,8 @@ export default function App() {
       <main className="flex-1 overflow-y-auto bg-zinc-950">
         <Routes>
           <Route path="/" element={<DashboardPage />} />
-          <Route path="/nova-os" element={<OSPage />} />
-          <Route path="/os/nova" element={<NovaOSPage />} />
+          <Route path="/os" element={<OSPage />} />
+          <Route path="/os" element={<NovaOSPage />} />
           <Route path="/pdv" element={<PDVPage />} />
           <Route path="/estoque" element={<EstoquePage />} />
           <Route path="/financeiro" element={<FinanceiroPage />} />
