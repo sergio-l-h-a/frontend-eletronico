@@ -28,7 +28,7 @@ export default function NovaOSPage() {
 
     try {
       // Ajustado de /api/os para /ordens-servico (rota real do backend)
-      const res = await fetch(`${API_URL}/ordens-servico`, {
+      const res = await fetch(`${API_URL}/nova-os`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
