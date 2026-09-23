@@ -19,7 +19,7 @@ export default function NovaOSPage() {
   }
 
   async function enviar(e: React.FormEvent) {
-    e.preventDefault(); // Impede o recarregamento nativo da página
+    e.preventDefault();
 
     if (!form.cliente || !form.aparelho) {
       alert("Por favor, preencha pelo menos o cliente e o aparelho.");
@@ -29,8 +29,8 @@ export default function NovaOSPage() {
     setSalvando(true);
 
     try {
-      // Faz o POST para o endpoint do backend
-      const res = await fetch(`${API_URL}/nova-os`, {
+      // Endpoint exato registrado no backend express (/ordens-servico)
+      const res = await fetch(`${API_URL}/ordens-servico`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -41,8 +41,9 @@ export default function NovaOSPage() {
       }
 
       alert("OS criada com sucesso!");
-      // CORRIGIDO: Redireciona para a rota da lista do frontend (/os)
-      navigate("/nova-os");
+      
+      // Redireciona para a lista de OSs no frontend
+      navigate("/os");
     } catch (err) {
       console.error("Erro ao criar OS:", err);
       alert("Falha ao salvar a OS. Verifique a conexão com o servidor.");
