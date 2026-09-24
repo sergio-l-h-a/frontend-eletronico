@@ -1,8 +1,8 @@
-import DashboardCharts from "../components/DashboardCharts"; // Ou o caminho correto do seu gráfico
+import DashboardCharts from "../components/DashboardCharts"; // Ajuste o caminho se necessário
 
 export default function DashboardPage() {
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto text-zinc-100">
+    <div className="w-full space-y-6">
       {/* Cabeçalho */}
       <div>
         <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Visão Geral da Oficina</h1>
@@ -11,8 +11,8 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      {/* Grid de KPIs - 1 col no mobile, 2 em tablets, 4 em telas grandes */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Grid de KPIs: 1 coluna no mobile, 2 em tablets, 4 em monitores */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 w-full">
         {/* KPI 1 */}
         <div className="p-4 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-between">
           <div className="space-y-1">
@@ -58,18 +58,20 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Grid Principal: Gráfico + Fila de OS */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Seção do Gráfico (Ocupa 2 colunas no Desktop) */}
-        <div className="lg:col-span-2 p-5 bg-zinc-900 border border-zinc-800 rounded-xl space-y-4">
+      {/* Grid Principal: 1 coluna no mobile, dividida no Desktop */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
+        {/* Gráfico */}
+        <div className="lg:col-span-2 p-5 bg-zinc-900 border border-zinc-800 rounded-xl space-y-4 w-full">
           <h2 className="text-base font-semibold text-center sm:text-left">
             Fluxo de Receitas (Simulação)
           </h2>
-          <DashboardCharts />
+          <div className="w-full overflow-hidden">
+            <DashboardCharts />
+          </div>
         </div>
 
-        {/* Seção Fila de OS Ativas (Ocupa 1 coluna no Desktop) */}
-        <div className="p-5 bg-zinc-900 border border-zinc-800 rounded-xl space-y-4">
+        {/* Fila de OS Ativas */}
+        <div className="p-5 bg-zinc-900 border border-zinc-800 rounded-xl space-y-4 w-full">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold">Fila de OS Ativas</h2>
             <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
