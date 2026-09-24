@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import { Sidebar } from "./components/Sidebar";
-import { Layout } from "./components/Layout";
+
 import DashboardPage from "./pages/DashboardPage";
 import OSPage from "./pages/OSPage";
 import NovaOSPage from "./pages/NovaOSPage";
@@ -12,26 +12,27 @@ import './styles/globals.css';
 
 export default function App() {
   return (
-    <div className="bg-zinc-950 text-zinc-50 antialiased h-screen overflow-hidden flex">
+    <div className="bg-zinc-950 text-zinc-50 antialiased min-h-screen w-full flex flex-col md:flex-row overflow-x-hidden">
+      {/* Sidebar (no mobile fica no topo ou oculto; no PC fica à esquerda) */}
       <Sidebar />
-      <main className="flex-1 overflow-y-auto bg-zinc-950">
-        <Layout>
-          <Routes>
-            <Route path="/" element={<DashboardPage />} />
-            
-            {/* Listagem de Ordens de Serviço */}
-            <Route path="/os" element={<OSPage />} />
-            <Route path="/ordens-servico" element={<OSPage />} />
-            
-            {/* Rota dedicada para abrir o Formulário de Cadastro */}
-            <Route path="/nova-os" element={<NovaOSPage />} />
 
-            <Route path="/pdv" element={<PDVPage />} />
-            <Route path="/estoque" element={<EstoquePage />} />
-            <Route path="/financeiro" element={<FinanceiroPage />} />
-            <Route path="/clientes" element={<ClientesPage />} />
-          </Routes>
-        </Layout>
+      {/* Área principal do conteúdo - Ocupa 100% da largura restante e permite scroll vertical */}
+      <main className="flex-1 w-full p-4 sm:p-6 lg:p-8 overflow-y-auto bg-zinc-950">
+        <Routes>
+          <Route path="/" element={<DashboardPage />} />
+          
+          {/* Listagem de Ordens de Serviço */}
+          <Route path="/os" element={<OSPage />} />
+          <Route path="/ordens-servico" element={<OSPage />} />
+          
+          {/* Rota dedicada para abrir o Formulário de Cadastro */}
+          <Route path="/nova-os" element={<NovaOSPage />} />
+
+          <Route path="/pdv" element={<PDVPage />} />
+          <Route path="/estoque" element={<EstoquePage />} />
+          <Route path="/financeiro" element={<FinanceiroPage />} />
+          <Route path="/clientes" element={<ClientesPage />} />
+        </Routes>
       </main>
     </div>
   );
